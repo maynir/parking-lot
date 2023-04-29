@@ -16,7 +16,7 @@ app.post('/entry', (req, res) => {
   const plate = req.query.plate;
   const parkingLot = req.query.parkingLot;
 
-  const ticketIdCounter = JSON.parse(fs.readFileSync('db/ticket_id_counter.json')).id;
+  let ticketIdCounter = JSON.parse(fs.readFileSync('db/ticket_id_counter.json')).id;
   const ticketId = ++ticketIdCounter;
 
   const timeOfArrival = Date.now();
