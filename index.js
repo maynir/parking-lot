@@ -54,7 +54,8 @@ app.post('/exit', (req, res) => {
 
   if (!entry) return res.status(400).json({ error: 'Invalid ticketId' });
 
-  const charge = calculateCharge(entry.timeOfArrival);
+  const totalParkedTime = Math.round((Date.now() - entry.timeOfArrival) / (1000 * 60));
+  const charge = calculateCharge(totalParkedTime);
 
   const response = {
     plate: entry.plate,
@@ -69,11 +70,7 @@ app.post('/exit', (req, res) => {
   res.json(response);
 });
 
-function calculateCharge(timeOfArrival) {
-  const timeOfDeparture = Date.now();
-  const totalParkedTime = Math.round((timeOfDeparture - timeOfArrival) / (1000 * 60));
-
-  // Calculate the charge based on the total parked time (rounded up to the nearest 15 minutes)
+function calculateCharge(totalParkedTime) {
   const hoursParked = Math.ceil(totalParkedTime / 60);
   const charge = hoursParked * 10;
   return charge;
