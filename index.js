@@ -46,6 +46,39 @@ function plateExistsInDatabase(plate, database) {
   return false;
 }
 
+app.post('/exit', (req, res) => {
+  const ticketId = parseInt(req.query.ticketId);
+
+  const database = JSON.parse(fs.readFileSync('db/parking_lot_entries.json'));
+  const entry = database[ticketId];
+
+  if (!entry) return res.status(400).json({ error: 'Invalid ticketId' });
+
+  const charge = calculateCharge(entry.timeOfArrival);
+
+  const response = {
+    plate: entry.plate,
+    parkingLot: entry.parkingLot,
+    totalParkedTime: totalParkedTime,
+    charge: charge,
+  };
+
+  delete database[ticketId];
+  fs.writeFileSync('db/parking_lot_entries.json', JSON.stringify(database));
+
+  res.json(response);
+});
+
+function calculateCharge(timeOfArrival) {
+  const timeOfDeparture = Date.now();
+  const totalParkedTime = Math.round((timeOfDeparture - timeOfArrival) / (1000 * 60));
+
+  // Calculate the charge based on the total parked time (rounded up to the nearest 15 minutes)
+  const hoursParked = Math.ceil(totalParkedTime / 60);
+  const charge = hoursParked * 10;
+  return charge;
+}
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
