@@ -28,6 +28,9 @@ app.post('/entry', (req, res) => {
   };
 
   const database = JSON.parse(fs.readFileSync('db/parking_lot_entries.json'));
+
+  if (plateExistsInDatabase(plate, database)) return res.status(400).json({ error: 'Plate already exists in the database' });
+
   database[ticketId] = entry;
   fs.writeFileSync('db/parking_lot_entries.json', JSON.stringify(database));
 
@@ -35,6 +38,13 @@ app.post('/entry', (req, res) => {
 
   res.json({ ticketId: ticketId });
 });
+
+function plateExistsInDatabase(plate, database) {
+  for (const [ticketId, entry] of Object.entries(database)) {
+    if (entry.plate === plate) return true;
+  }
+  return false;
+}
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
