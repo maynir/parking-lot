@@ -8,7 +8,7 @@ Adds an entry to the parking lot database and returns a ticket ID.
 
 ### Request
 
-- Method: GET
+- Method: POST
 - URL: `/entry`
 - Query Parameters:
     - `plate` (string, required): The license plate of the vehicle.
@@ -24,7 +24,7 @@ Adds an entry to the parking lot database and returns a ticket ID.
 #### Example
 
 ```bash
-curl -X GET "http://example.com/entry?plate=ABC-123&parkingLot=1"
+curl -X POST "http://<public_ip>:5000/entry?plate=ABC-123&parkingLot=1"
 ```
 
 ## `/exit`
@@ -33,7 +33,7 @@ Removes an entry from the parking lot database and returns the license plate, to
 
 ### Request
 
-- Method: GET
+- Method: POST
 - URL: `/exit`
 - Query Parameters:
     - `ticketId` (number, required): The ticket ID of the entry to remove.
@@ -51,5 +51,5 @@ Removes an entry from the parking lot database and returns the license plate, to
 #### Example
 
 ```bash
-curl -X GET "http://example.com/exit?ticketId=1234"
+curl -X POST "http://<public_ip>:5000/exit?ticketId=1"
 ```
