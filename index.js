@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send("Hello World, this is May's project!")
 })
 
 app.post('/entry', (req, res) => {
