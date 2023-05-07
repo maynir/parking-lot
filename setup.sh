@@ -48,15 +48,13 @@ PUBLIC_IP=$(aws ec2 describe-instances  --instance-ids "$INSTANCE_ID" |
 
 echo "New instance $INSTANCE_ID @ $PUBLIC_IP"
 
-echo "Upload setup script"
-scp -i "$KEY_PEM" -o "StrictHostKeyChecking=no" setup_parkinglot_server.sh ubuntu@"$PUBLIC_IP":/home/ubuntu/
-
 echo "Execute script on machine"
 ssh -i "$KEY_PEM" -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ubuntu@"$PUBLIC_IP" /bin/bash << EOF
     echo "Updating apt-get..."
+    curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - > /dev/null
     sudo apt-get update > /dev/null
     echo "Installing nodejs, npm, git..."
-    sudo apt-get install -y nodejs npm git > /dev/null
+    sudo apt-get install -y nodejs git > /dev/null
     echo "Cloning maynir/parking-lot.git..."
     git clone https://github.com/maynir/parking-lot.git
     cd parking-lot
@@ -69,5 +67,12 @@ ssh -i "$KEY_PEM" -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ubunt
     exit
 EOF
 
-echo "Test that it all worked"
+sleep 3
+echo "Test that it all working:"
 curl --retry-connrefused --retry 10 --retry-delay 1  http://"$PUBLIC_IP":5000
+sleep 3
+ticket_id=$(curl -X POST "http://$PUBLIC_IP:5000/entry?plate=ABC-123&parkingLot=1" | jq -r '.ticketId')
+echo "New car with plate ABC-123 entered to parking lot 1 and got ticket id $ticket_id"
+sleep 5
+summary=$(curl -X POST "http://$PUBLIC_IP:5000/exit?ticketId=$ticket_id")
+echo "Car with plate ABC-123 leave parking lot: $summary"
